@@ -11,4 +11,5 @@
     <color name="alarm_details">#888888</color>
     <color name="alarm_title_active">#444444</color>
     <color name="alarm_title_outdated">#888888</color>
+
 </resources>

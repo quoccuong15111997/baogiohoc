@@ -1,30 +1,19 @@
 package com.example.tkb;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.icu.util.Calendar;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -32,8 +21,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -42,13 +29,9 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ManualActivity extends AppCompatActivity {
 
@@ -73,8 +56,7 @@ public class ManualActivity extends AppCompatActivity {
     DatabaseReference lebatdau;
     DatabaseReference leketthuc;
 
-    EditText chonngay1, chonngay2, chonngay3, chonngay4;
-    EditText chongiongay1, chongiongay2;
+    EditText chonngay3, chonngay4;
     //ngày giờ bắt đầu, kết thúc lễ
     EditText edtNgayBatDauLe, edtGioBatDauLe;
     EditText edtNgayKetThucLe, edtGioKetThucLe;
@@ -93,14 +75,25 @@ public class ManualActivity extends AppCompatActivity {
     private RadioButton radiobtnthi, radiobtnmacdinh, radiobtndieuchinh;
     private RadioGroup radioGroupcaidat, radioGroupthi;
 
+    AlarmManager alarmManagerStart;
+    Intent intentStart;
+    PendingIntent pendingIntentStart;
+    Calendar calendarBaoStart;
+
+    AlarmManager alarmManagerEnd;
+    Intent intentEnd;
+    PendingIntent pendingIntentEnd;
+    Calendar calendarBaoEnd;
+
+
     public void onClear(View v) {
         /* Clears all selected radio buttons to default */
         radioGroupcaidat.clearCheck();
         radioGroupthi.clearCheck();
-        chonngay1.setText("Chọn ngày");
-        chongiongay1.setText("Chọn giờ");
-        chonngay2.setText("Chọn ngày");
-        chongiongay2.setText("Chọn giờ");
+        edtNgayBatDauLe.setText("Chọn ngày");
+        edtNgayKetThucLe.setText("Chọn ngày");
+        edtGioBatDauLe.setText("Chọn giờ");
+        edtGioKetThucLe.setText("Chọn giờ");
         chonngay3.setText("Chọn ngày");
         chonngay4.setText("Chọn ngày");
         giocai1.setText("Chọn giờ");
@@ -121,6 +114,15 @@ public class ManualActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manual);
+
+
+        alarmManagerStart= (AlarmManager) getSystemService(ALARM_SERVICE);
+        intentStart= new Intent(ManualActivity.this, AlarmReceiver.class);
+        calendarBaoStart=calendarBaoStart.getInstance();
+
+        alarmManagerEnd= (AlarmManager) getSystemService(ALARM_SERVICE);
+        intentEnd= new Intent(ManualActivity.this, AlarmReceiver.class);
+        calendarBaoEnd=calendarBaoStart.getInstance();
 
         // dong nay them
         myData = FirebaseDatabase.getInstance().getReference();
@@ -156,6 +158,33 @@ public class ManualActivity extends AppCompatActivity {
                 MainActivity.txtGioTiepTheo.setVisibility(View.GONE);
                 MainActivity.txtNghiLe.setVisibility(View.VISIBLE);
                 MainActivity.txtNghiLe.setText("Đang trong thời gian nghỉ lễ");
+            }
+        });
+        radiobtnnghile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (radiobtnnghile.isChecked()){
+                    edtNgayBatDauLe.setEnabled(true);
+                    edtGioBatDauLe.setEnabled(true);
+                    edtNgayKetThucLe.setEnabled(true);
+                    edtGioKetThucLe.setEnabled(true);
+
+                    chonngay3.setEnabled(false);
+                    chonngay4.setEnabled(false);
+
+                }
+            }
+        });
+        radiobtnthi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                edtNgayBatDauLe.setEnabled(false);
+                edtGioBatDauLe.setEnabled(false);
+                edtNgayKetThucLe.setEnabled(false);
+                edtGioKetThucLe.setEnabled(false);
+
+                chonngay3.setEnabled(true);
+                chonngay4.setEnabled(true);
             }
         });
 
@@ -308,6 +337,7 @@ public class ManualActivity extends AppCompatActivity {
         });
 
         chonngay3 = (EditText) findViewById(R.id.batdauthi);
+        chonngay3.setEnabled(false);
         chonngay3.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -317,6 +347,7 @@ public class ManualActivity extends AppCompatActivity {
         });
 
         chonngay4 = (EditText) findViewById(R.id.ketthucthi);
+        chonngay3.setEnabled(false);
         chonngay4.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -330,12 +361,12 @@ public class ManualActivity extends AppCompatActivity {
         textClock.setFormat12Hour(formatdate);
         textClock.setFormat24Hour(formatdate);
 
+        addControls();
+        addEvents();
         loadData();
         loadthi();
         loaddc();
-        //chọn ngày giờ lễ
-        addControls();
-        addEvents();
+
     }
 
     private void addEvents() {
@@ -343,33 +374,33 @@ public class ManualActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                chonNgay(edtNgayBatDauLe);
+                chonNgay(edtNgayBatDauLe,"START");
             }
         });
         edtGioBatDauLe.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                chonGio(edtGioBatDauLe);
+                chonGio(edtGioBatDauLe,"START");
             }
         });
         edtNgayKetThucLe.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                chonNgay(edtNgayKetThucLe);
+                chonNgay(edtNgayKetThucLe,"END");
             }
         });
         edtGioKetThucLe.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                chonGio(edtGioKetThucLe);
+                chonGio(edtGioKetThucLe,"END");
             }
         });
     }
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void chonNgay(final EditText edt) {
+    private void chonNgay(final EditText edt, final String calendars) {
         final Calendar calendar = Calendar.getInstance();
         int ngay = calendar.get(Calendar.DATE);
         int thang = calendar.get(Calendar.MONTH);
@@ -382,12 +413,18 @@ public class ManualActivity extends AppCompatActivity {
                 calendar.set(year1, month1, dayOfMonth1);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 edt.setText(simpleDateFormat.format(calendar.getTime()));
+                if (calendars.equals("START")){
+                    calendarBaoStart.set(year1, month1, dayOfMonth1);
+                }
+                else if (calendars.equals("END")){
+                    calendarBaoEnd.set(year1, month1, dayOfMonth1);
+                }
             }
         }, nam, thang, ngay);
         datePickerDialog.show();
     }
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void chonGio(final EditText edt) {
+    private void chonGio(final EditText edt, final String calendars) {
         final Calendar calendar = Calendar.getInstance();
         final int gio1 = calendar.get(Calendar.HOUR_OF_DAY);
         final int phut1 = calendar.get(Calendar.MINUTE);
@@ -397,7 +434,18 @@ public class ManualActivity extends AppCompatActivity {
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
                 calendar.set(0, 0, 0, hourOfDay, (minute));
+
                 edt.setText(simpleDateFormat.format(calendar.getTime()));
+                if (calendars.equals("START")){
+                    calendarBaoStart.set(Calendar.HOUR,hourOfDay);
+                    calendarBaoStart.set(Calendar.MINUTE,minute);
+                    calendarBaoStart.set(Calendar.SECOND,0);
+                }
+                else if (calendars.equals("END")){
+                    calendarBaoEnd.set(Calendar.HOUR,hourOfDay);
+                    calendarBaoEnd.set(Calendar.MINUTE,minute);
+                    calendarBaoStart.set(Calendar.SECOND,0);
+                }
             }
         }, gio1, phut1, true);
         timePickerDialog.show();
@@ -408,6 +456,10 @@ public class ManualActivity extends AppCompatActivity {
         edtGioBatDauLe=findViewById(R.id.edtGioBatDauLe);
         edtNgayKetThucLe=findViewById(R.id.edtNgayKetThucLe);
         edtGioKetThucLe=findViewById(R.id.edtGioKetThucLe);
+        edtNgayBatDauLe.setEnabled(false);
+        edtGioBatDauLe.setEnabled(false);
+        edtNgayKetThucLe.setEnabled(false);
+        edtGioKetThucLe.setEnabled(false);
     }
 
 
@@ -594,16 +646,30 @@ public class ManualActivity extends AppCompatActivity {
                 MainActivity.txtGioTiepTheo.setVisibility(View.GONE);
                 MainActivity.txtNghiLe.setVisibility(View.VISIBLE);
                 MainActivity.txtNghiLe.setText("Đang trong thời gian nghỉ lễ");
-                chonngay1.setText(sharedPreferences.getString("chonngay1", ""));
-                chongiongay1.setText(sharedPreferences.getString("chongiongay1", ""));
-                chonngay2.setText(sharedPreferences.getString("chonngay2", ""));
-                chongiongay2.setText(sharedPreferences.getString("chongiongay2", ""));
+                edtGioBatDauLe.setText(sharedPreferences.getString("chongiongay1", ""));
+                edtGioKetThucLe.setText(sharedPreferences.getString("chongiongay2", ""));
+                edtNgayBatDauLe.setText(sharedPreferences.getString("chonngay1",""));
+                edtNgayKetThucLe.setText(sharedPreferences.getString("chonngay2",""));
+                edtNgayBatDauLe.setEnabled(true);
+                edtGioBatDauLe.setEnabled(true);
+                edtNgayKetThucLe.setEnabled(true);
+                edtGioKetThucLe.setEnabled(true);
+
+                chonngay3.setEnabled(false);
+                chonngay4.setEnabled(false);
             } else if (checkedRadioButtonId == R.id.radiothi) {
                 MainActivity.txtGioTiepTheo.setVisibility(View.GONE);
                 MainActivity.txtNghiLe.setVisibility(View.VISIBLE);
                 MainActivity.txtNghiLe.setText("Đang trong thời gian thi");
                 chonngay3.setText(sharedPreferences.getString("chonngay3", ""));
                 chonngay4.setText(sharedPreferences.getString("chonngay4", ""));
+                edtNgayBatDauLe.setEnabled(false);
+                edtGioBatDauLe.setEnabled(false);
+                edtNgayKetThucLe.setEnabled(false);
+                edtGioKetThucLe.setEnabled(false);
+
+                chonngay3.setEnabled(true);
+                chonngay4.setEnabled(true);
             } else {
                 MainActivity.txtGioTiepTheo.setVisibility(View.VISIBLE);
                 MainActivity.txtNghiLe.setVisibility(View.GONE);
@@ -627,10 +693,10 @@ public class ManualActivity extends AppCompatActivity {
         int checkedRadioButtonId = radioGroupcaidat.getCheckedRadioButtonId();
         editor.putInt("checkedRadioButtonId", checkedRadioButtonId);
         editor.putString("text", MainActivity.txtNghiLe.getText().toString());
-        editor.putString("chonngay1", chonngay1.getText().toString());
-        editor.putString("chongiongay1", chongiongay1.getText().toString());
-        editor.putString("chonngay2", chonngay2.getText().toString());
-        editor.putString("chongiongay2", chongiongay2.getText().toString());
+        editor.putString("chongiongay1", edtGioBatDauLe.getText().toString());
+        editor.putString("chongiongay2", edtGioKetThucLe.getText().toString());
+        editor.putString("chonngay1", edtNgayBatDauLe.getText().toString());
+        editor.putString("chonngay2", edtNgayKetThucLe.getText().toString());
         editor.putString("chonngay3", chonngay3.getText().toString());
         editor.putString("chonngay4", chonngay4.getText().toString());
 
@@ -639,6 +705,9 @@ public class ManualActivity extends AppCompatActivity {
 
         // Save.
         editor.apply();
+        if (radiobtnnghile.isChecked()){
+            openReceiver(calendarBaoStart,calendarBaoEnd);
+        }
 
         Toast.makeText(this, "Đã lưu", Toast.LENGTH_LONG).show();
     }
@@ -706,4 +775,20 @@ public class ManualActivity extends AppCompatActivity {
 
         editor.apply();
     }
+    private void openReceiver(Calendar calendarStart, Calendar calendarEnd) {
+        pendingIntentStart= PendingIntent.getBroadcast(ManualActivity.this,0,intentStart,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        /*calendarBaoStart.set(java.util.Calendar.HOUR_OF_DAY, java.util.Calendar.getInstance().getTime().getHours());
+        calendarBaoStart.set(java.util.Calendar.MINUTE, java.util.Calendar.getInstance().getTime().getMinutes()+1);*/
+
+        alarmManagerStart.set(AlarmManager.RTC_WAKEUP,calendarStart.getTimeInMillis(),pendingIntentStart);
+
+        pendingIntentEnd= PendingIntent.getBroadcast(ManualActivity.this,1,intentEnd,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        /*calendarBaoEnd.set(java.util.Calendar.HOUR_OF_DAY, java.util.Calendar.getInstance().getTime().getHours());
+        calendarBaoEnd.set(java.util.Calendar.MINUTE, java.util.Calendar.getInstance().getTime().getMinutes()+2);*/
+
+        alarmManagerEnd.set(AlarmManager.RTC_WAKEUP,calendarEnd.getTimeInMillis(),pendingIntentEnd);
+    }
+
 }

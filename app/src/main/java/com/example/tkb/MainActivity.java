@@ -11,6 +11,7 @@ import android.os.CountDownTimer;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference chonhaihoichuong;
     DatabaseReference mothoichuong;
     DatabaseReference haihoichuong;
-    Calendar calendarBao;
     //private CountDownTimer mCountDownTimer;
     //private boolean mTimerRunning;
     //private long mTimeLeftInMillis = START_TIME_IN_MILLIS;
@@ -83,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton motchuongMO,haichuongMO,tatchuongMO;
     SharedPreferences sharedPreferences;
 
-    AlarmManager alarmManager;
-    Intent intent;
-    PendingIntent pendingIntent;
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -93,9 +90,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        alarmManager= (AlarmManager) getSystemService(ALARM_SERVICE);
-        intent= new Intent(MainActivity.this, AlarmReceiver.class);
-        calendarBao=calendarBao.getInstance();
         // dong nay them
         btn_1hoichuong = (Button) findViewById(R.id.btn1hoi);
         btn_2hoichuong = (Button) findViewById(R.id.btn3hoi);
@@ -265,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
         txtNghiLe = findViewById(R.id.txtNgayNghi);
 
         loadData();
-        openReceiver();
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -520,12 +513,6 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(timerTask, 0, 1000);
     }
 
-    private void openReceiver() {
-        pendingIntent= PendingIntent.getBroadcast(MainActivity.this,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        calendarBao.set(Calendar.HOUR_OF_DAY,Calendar.getInstance().getTime().getHours());
-        calendarBao.set(Calendar.MINUTE,Calendar.getInstance().getTime().getMinutes()+2);
-        alarmManager.set(AlarmManager.RTC_WAKEUP,calendarBao.getTimeInMillis(),pendingIntent);
-    }
 
     public void loadData() {
         sharedPreferences=getSharedPreferences("data",MODE_PRIVATE);
@@ -642,6 +629,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }.start();
     }
+
+    NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(MainActivity.this)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle("My notification")
+            .setContentText("Much longer text that cannot fit one line...")
+            .setStyle(new NotificationCompat.BigTextStyle()
+                    .bigText("Much longer text that cannot fit one line..."))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 }
 
     ///them dong code nay

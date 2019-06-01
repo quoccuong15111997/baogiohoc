@@ -198,8 +198,7 @@
                         android:inputType="textPersonName"
                         android:text="Chọn ngày"
                         android:textSize="15sp"
-                        android:gravity="center"
-                        android:onClick="onDateClick1" />
+                        android:gravity="center"/>
 
                     <EditText
                         android:id="@+id/edtGioBatDauLe"
@@ -212,7 +211,6 @@
                         android:layout_weight="1"
                         android:inputType="textPersonName"
                         android:gravity="center"
-                        android:onClick="onTimeClick1"
                         android:text="Chọn giờ" />
                 </LinearLayout>
             </LinearLayout>
@@ -262,8 +260,7 @@
                         android:inputType="textPersonName"
                         android:text="Chọn ngày"
                         android:textSize="15sp"
-                        android:gravity="center"
-                        android:onClick="onDateClick2" />
+                        android:gravity="center" />
 
                     <EditText
                         android:id="@+id/edtGioKetThucLe"
@@ -276,7 +273,6 @@
                         android:layout_weight="1"
                         android:inputType="textPersonName"
                         android:gravity="center"
-                        android:onClick="onTimeClick2"
                         android:text="Chọn giờ" />
                 </LinearLayout>
             </LinearLayout>
@@ -911,7 +907,6 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:text="Chọn giờ"
                         android:textColor="#0E0D0D"
                         android:textSize="20sp"/>
 
